@@ -1,0 +1,12 @@
+[submodule "vendor/debugging/spdlog"]
+	path = vendor/debugging/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "vendor/graphics/freetype"]
+	path = vendor/graphics/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "vendor/graphics/harfbuzz"]
+	path = vendor/graphics/harfbuzz
+	url = https://github.com/harfbuzz/harfbuzz.git
+[submodule "vendor/imaging/stb"]
+	path = vendor/imaging/stb
+	url = https://github.com/nothings/stb.git
