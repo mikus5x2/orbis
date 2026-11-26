@@ -174,36 +174,6 @@ HRESULT Device::createRenderTarget()
         backBuffer.Get(), nullptr, renderTarget_.GetAddressOf());
 }
 
-void Device::beginFrame(float r, float g, float b, float a)
-{
-    if (!context_ || !renderTarget_)
-    {
-        return;
-    }
-
-    const float clearColor[4] = {r, g, b, a};
-    context_->ClearRenderTargetView(renderTarget_.Get(), clearColor);
-
-    ID3D11RenderTargetView* targets[] = {renderTarget_.Get()};
-    context_->OMSetRenderTargets(1, targets, nullptr);
-
-    D3D11_VIEWPORT viewport{};
-    viewport.Width = static_cast<float>(width_);
-    viewport.Height = static_cast<float>(height_);
-    viewport.MaxDepth = 1.0f;
-    context_->RSSetViewports(1, &viewport);
-}
-
-void Device::present()
-{
-    if (!swapChain_)
-    {
-        return;
-    }
-
-    swapChain_->Present(1, 0);
-}
-
 void Device::destroy()
 {
     renderTarget_.Reset();

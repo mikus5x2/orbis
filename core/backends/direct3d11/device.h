@@ -34,9 +34,6 @@ public:
     bool resize(int width, int height);
     void destroy();
 
-    void beginFrame(float r, float g, float b, float a);
-    void present();
-
     ID3D11Device* device() const { return device_.Get(); }
     ID3D11DeviceContext* context() const { return context_.Get(); }
     IDXGIAdapter* adapter() const { return adapter_.Get(); }
