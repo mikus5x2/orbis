@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-Orbis is an open-source C++ UI rendering framework powered by Direct3D 11.
+Orbis is an open-source C++ UI rendering framework powered by Direct3D 11 and Vulkan.
 
 | Library | Purpose | License |
 |---|---|---|
