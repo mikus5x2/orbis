@@ -16,7 +16,7 @@ const wchar_t* featureLevelName(D3D_FEATURE_LEVEL level)
     }
 }
 
-} 
+} // namespace
 
 int main()
 {
@@ -39,14 +39,19 @@ int main()
         return 1;
     }
 
-    // std::wprintf(L"Adapter:       %s\n", device.adapterName().c_str());
-    // std::wprintf(L"Feature level: %s\n", featureLevelName(device.featureLevel()));
-    // std::wprintf(L"Debug layer:   %s\n", device.debugLayerEnabled() ? L"on" : L"off");
-    std::fflush(stdout);
+    if (!device.createSwapChain(window.handle(), window.width(), window.height()))
+    {
+        std::fprintf(
+            stderr,
+            "Failed to create swapchain (HRESULT 0x%08lX)\n",
+            static_cast<unsigned long>(device.lastError()));
+        return 1;
+    }
 
     while (window.poll())
     {
-        Sleep(1);
+        device.beginFrame(0.616f, 0.780f, 0.890f, 1.0f);
+        device.present();
     }
 
     device.destroy();
