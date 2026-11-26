@@ -31,6 +31,7 @@ public:
 
     bool create();
     bool createSwapChain(HWND hwnd, int width, int height);
+    bool resize(int width, int height);
     void destroy();
 
     void beginFrame(float r, float g, float b, float a);

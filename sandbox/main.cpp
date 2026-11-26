@@ -48,6 +48,11 @@ int main()
         return 1;
     }
 
+    window.onResize = [&device](int width, int height)
+    {
+        device.resize(width, height);
+    };
+
     while (window.poll())
     {
         device.beginFrame(0.616f, 0.780f, 0.890f, 1.0f);

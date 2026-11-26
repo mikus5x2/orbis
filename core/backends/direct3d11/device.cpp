@@ -125,6 +125,42 @@ bool Device::createSwapChain(HWND hwnd, int width, int height)
     return true;
 }
 
+bool Device::resize(int width, int height)
+{
+    if (!swapChain_ || !context_ || width <= 0 || height <= 0)
+    {
+        return false;
+    }
+
+    if (width == width_ && height == height_)
+    {
+        return true;
+    }
+
+    context_->ClearState();
+    renderTarget_.Reset();
+
+    HRESULT hr = swapChain_->ResizeBuffers(
+        0, static_cast<UINT>(width), static_cast<UINT>(height), DXGI_FORMAT_UNKNOWN, 0);
+    if (FAILED(hr))
+    {
+        lastError_ = hr;
+        return false;
+    }
+
+    hr = createRenderTarget();
+    if (FAILED(hr))
+    {
+        lastError_ = hr;
+        return false;
+    }
+
+    width_ = width;
+    height_ = height;
+    lastError_ = S_OK;
+    return true;
+}
+
 HRESULT Device::createRenderTarget()
 {
     Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
