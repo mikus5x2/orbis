@@ -5,11 +5,18 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 
-namespace orbis::win32 {
+namespace orbis::win32
+{
 
-class Window {
+void enableDpiAwareness();
+
+class Window
+{
 public:
     Window() = default;
     ~Window();

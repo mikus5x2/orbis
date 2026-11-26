@@ -1,23 +1,24 @@
 #include "platform/win32/window.h"
 
-namespace orbis::win32 {
-namespace {
+namespace orbis::win32
+{
 
-constexpr wchar_t kClassName[] = L"OrbisWindow";
-
+void enableDpiAwareness()
+{
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
-Window::~Window() {
+Window::~Window()
+{
     destroy();
 }
 
-bool Window::create(const wchar_t* title, int width, int height) {
-    if (hwnd_ || width <= 0 || height <= 0) 
+bool Window::create(const wchar_t* title, int width, int height)
+{
+    if (hwnd_ || width <= 0 || height <= 0)
     {
         return false;
     }
-
-    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
     HINSTANCE instance = GetModuleHandleW(nullptr);
 
@@ -28,9 +29,9 @@ bool Window::create(const wchar_t* title, int width, int height) {
     wc.hInstance = instance;
     wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     wc.hbrBackground = nullptr;
-    wc.lpszClassName = kClassName;
+    wc.lpszClassName = L"OrbisWindow";
 
-    if (!RegisterClassExW(&wc) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) 
+    if (!RegisterClassExW(&wc) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS)
     {
         return false;
     }
@@ -41,7 +42,7 @@ bool Window::create(const wchar_t* title, int width, int height) {
 
     hwnd_ = CreateWindowExW(
         0,
-        kClassName,
+        L"OrbisWindow",
         title,
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
@@ -53,34 +54,36 @@ bool Window::create(const wchar_t* title, int width, int height) {
         instance,
         this);
 
-    if (!hwnd_) 
+    if (!hwnd_)
     {
         return false;
     }
 
-    width_ = width;
-    height_ = height;
+    RECT client{};
+    GetClientRect(hwnd_, &client);
+    width_ = client.right - client.left;
+    height_ = client.bottom - client.top;
 
     ShowWindow(hwnd_, SW_SHOW);
     UpdateWindow(hwnd_);
     return true;
 }
 
-void Window::destroy() 
+void Window::destroy()
 {
-    if (hwnd_) 
+    if (hwnd_)
     {
         DestroyWindow(hwnd_);
         hwnd_ = nullptr;
     }
 }
 
-bool Window::poll() 
+bool Window::poll()
 {
     MSG msg{};
-    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) 
+    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
     {
-        if (msg.message == WM_QUIT) 
+        if (msg.message == WM_QUIT)
         {
             quit_ = true;
             break;
@@ -93,24 +96,26 @@ bool Window::poll()
     return !quit_;
 }
 
-LRESULT CALLBACK Window::wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
+LRESULT CALLBACK Window::wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     Window* self = nullptr;
 
-    if (msg == WM_NCCREATE) 
+    if (msg == WM_NCCREATE)
     {
         auto* create = reinterpret_cast<CREATESTRUCTW*>(lParam);
         self = static_cast<Window*>(create->lpCreateParams);
-        if (self) {
+        if (self)
+        {
             self->hwnd_ = hwnd;
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
         }
-    } else 
+    }
+    else
     {
         self = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
     }
 
-    if (self) 
+    if (self)
     {
         return self->handleMessage(hwnd, msg, wParam, lParam);
     }
@@ -118,25 +123,28 @@ LRESULT CALLBACK Window::wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
-LRESULT Window::handleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    switch (msg) {
-    case WM_SIZE: 
+LRESULT Window::handleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_SIZE:
     {
         const int width = LOWORD(lParam);
         const int height = HIWORD(lParam);
 
-        if (width > 0 && height > 0) 
+        if (width > 0 && height > 0)
         {
             width_ = width;
             height_ = height;
-            if (onResize) {
+            if (onResize)
+            {
                 onResize(width, height);
             }
         }
         return 0;
     }
 
-    case WM_DPICHANGED: 
+    case WM_DPICHANGED:
     {
         const auto* suggested = reinterpret_cast<const RECT*>(lParam);
         SetWindowPos(
