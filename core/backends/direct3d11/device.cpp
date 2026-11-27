@@ -1,3 +1,8 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus5x2/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #include "core/backends/direct3d11/device.h"
 
 namespace orbis::d3d11
@@ -23,7 +28,7 @@ HRESULT createRawDevice(UINT flags, ID3D11Device** device, D3D_FEATURE_LEVEL* le
         context);
 }
 
-} // namespace
+}
 
 Device::~Device()
 {

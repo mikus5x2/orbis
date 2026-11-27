@@ -29,8 +29,10 @@
   <ItemGroup>
     <ClCompile Include="core\backends\direct3d11\device.cpp" />
     <ClCompile Include="core\backends\direct3d11\orbis_impl_dx11.cpp" />
-    <ClCompile Include="core\orbis_canvas.cpp" />
-    <ClCompile Include="core\orbis_font.cpp" />
+    <ClCompile Include="core\backends\freetype\orbis_font_freetype.cpp" />
+    <ClCompile Include="core\backends\stb\orbis_font_stb.cpp" />
+    <ClCompile Include="core\canvas.cpp" />
+    <ClCompile Include="core\font.cpp" />
     <ClCompile Include="core\orbis.cpp" />
     <ClCompile Include="platform\win32\window.cpp" />
     <ClCompile Include="sandbox\main.cpp" />
@@ -38,10 +40,19 @@
   <ItemGroup>
     <ClInclude Include="core\backends\direct3d11\device.h" />
     <ClInclude Include="core\backends\direct3d11\orbis_impl_dx11.h" />
-    <ClInclude Include="core\orbis_canvas.h" />
-    <ClInclude Include="core\orbis_font.h" />
+    <ClInclude Include="core\canvas.h" />
+    <ClInclude Include="core\font.h" />
+    <ClInclude Include="core\font_internal.h" />
     <ClInclude Include="core\orbis.h" />
+    <ClInclude Include="core\types.h" />
     <ClInclude Include="platform\win32\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="vendor\graphics\freetype\builds\windows\vc2010\freetype.vcxproj">
+      <Project>{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}</Project>
+      <SetConfiguration>Configuration=$(Configuration) Static</SetConfiguration>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -124,7 +135,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -132,7 +143,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -144,7 +156,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -152,7 +164,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -162,7 +175,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -170,7 +183,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -182,7 +196,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -190,7 +204,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -200,7 +215,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -208,7 +223,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -220,7 +236,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ORBIS_WITH_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\debugging\spdlog\include;$(SolutionDir)vendor\graphics\freetype\include;$(SolutionDir)vendor\graphics\harfbuzz\src;$(SolutionDir)vendor\imaging\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -229,7 +245,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\mikus\Documents\Orbis\vendor\graphics\freetype\objs\Win32\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

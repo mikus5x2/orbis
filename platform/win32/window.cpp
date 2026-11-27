@@ -1,3 +1,8 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus5x2/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #include "platform/win32/window.h"
 
 namespace orbis::win32
@@ -27,7 +32,7 @@ bool Window::create(const wchar_t* title, int width, int height)
     wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = &Window::wndProc;
     wc.hInstance = instance;
-    wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+    wc.hCursor = LoadCursorW(nullptr, reinterpret_cast<LPCWSTR>(IDC_ARROW));
     wc.hbrBackground = nullptr;
     wc.lpszClassName = L"OrbisWindow";
 

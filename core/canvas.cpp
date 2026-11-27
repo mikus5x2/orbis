@@ -1,13 +1,12 @@
 // Orbis v0.1.0
 // Lightweight immediate-mode UI framework
-// https://github.com/mikus/orbis
+// https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
-#include "core/orbis_canvas.h"
+#include "core/canvas.h"
 
-#include "core/orbis_font.h"
+#include "core/font.h"
 
-#include <algorithm>
 #include <algorithm>
 #include <cmath>
 
@@ -84,7 +83,7 @@ void Canvas::fillRect(const Rect& rect, Color color)
 
     addCommand(static_cast<std::uint32_t>(indexStart));
     commands_.back().indexCount += 6;
-    reserve(4, 6);
+    append(4, 6);
 
     const float x0 = rect.x;
     const float y0 = rect.y;
@@ -112,21 +111,24 @@ void Canvas::text(Vec2 position, std::string_view text, Color color)
     emitText(position, text, color);
 }
 
-void Canvas::textOutlined(Vec2 position, std::string_view text, Color color, Color outline, float thickness)
+void Canvas::textOutlined(
+    Vec2 position,
+    std::string_view text,
+    Color color,
+    Color outline,
+    float thickness)
 {
-    if ((color.value >> 24) == 0 || text.empty())
+    if (text.empty() || (color.value >> 24) == 0)
     {
         return;
     }
 
-    position = {std::floor(position.x + 0.5f), std::floor(position.y + 0.5f)};
-
-    if ((outline.value >> 24) != 0)
+    if ((outline.value >> 24) != 0 && thickness > 0.0f)
     {
-        emitText({position.x - 1.0f, position.y}, text, outline);
-        emitText({position.x + 1.0f, position.y}, text, outline);
-        emitText({position.x, position.y - 1.0f}, text, outline);
-        emitText({position.x, position.y + 1.0f}, text, outline);
+        emitText({position.x - thickness, position.y}, text, outline);
+        emitText({position.x + thickness, position.y}, text, outline);
+        emitText({position.x, position.y - thickness}, text, outline);
+        emitText({position.x, position.y + thickness}, text, outline);
     }
 
     emitText(position, text, color);
@@ -141,7 +143,7 @@ void Canvas::emitText(Vec2 position, std::string_view text, Color color)
 
     const std::size_t vertexStart = vertices_.size();
     const std::size_t indexStart = indices_.size();
-    reserve(
+    append(
         static_cast<std::uint32_t>(text.size() * 4),
         static_cast<std::uint32_t>(text.size() * 6));
 
@@ -151,15 +153,17 @@ void Canvas::emitText(Vec2 position, std::string_view text, Color color)
     std::uint32_t vertexCount = 0;
     std::uint32_t indexCount = 0;
 
-    float x = position.x;
-    float y = position.y + font_->ascent();
+    const Rect& clip = clipStack_.back();
+    const float startX = std::floor(position.x + 0.5f);
+    float x = startX;
+    float y = std::floor(position.y + font_->ascent() + 0.5f);
 
     for (const char codepoint : text)
     {
         if (codepoint == '\n')
         {
-            x = position.x;
-            y += font_->lineHeight();
+            x = startX;
+            y = std::floor(y + font_->lineHeight() + 0.5f);
             continue;
         }
 
@@ -171,27 +175,34 @@ void Canvas::emitText(Vec2 position, std::string_view text, Color color)
 
         if (glyph->width > 0.0f)
         {
-            const float x0 = x + glyph->xOffset;
-            const float y0 = y + glyph->yOffset;
-            const float x1 = x0 + glyph->width;
-            const float y1 = y0 + glyph->height;
+            const Rect quad{
+                x + glyph->xOffset,
+                y + glyph->yOffset,
+                glyph->width,
+                glyph->height};
 
-            vertex[0] = {{x0, y0}, {glyph->u0, glyph->v0}, color};
-            vertex[1] = {{x1, y0}, {glyph->u1, glyph->v0}, color};
-            vertex[2] = {{x1, y1}, {glyph->u1, glyph->v1}, color};
-            vertex[3] = {{x0, y1}, {glyph->u0, glyph->v1}, color};
+            if (!outsideClip(quad, clip))
+            {
+                const float x1 = quad.x + quad.width;
+                const float y1 = quad.y + quad.height;
 
-            index[0] = base + vertexCount + 0;
-            index[1] = base + vertexCount + 1;
-            index[2] = base + vertexCount + 2;
-            index[3] = base + vertexCount + 0;
-            index[4] = base + vertexCount + 2;
-            index[5] = base + vertexCount + 3;
+                vertex[0] = {{quad.x, quad.y}, {glyph->u0, glyph->v0}, color};
+                vertex[1] = {{x1, quad.y}, {glyph->u1, glyph->v0}, color};
+                vertex[2] = {{x1, y1}, {glyph->u1, glyph->v1}, color};
+                vertex[3] = {{quad.x, y1}, {glyph->u0, glyph->v1}, color};
 
-            vertex += 4;
-            index += 6;
-            vertexCount += 4;
-            indexCount += 6;
+                index[0] = base + vertexCount + 0;
+                index[1] = base + vertexCount + 1;
+                index[2] = base + vertexCount + 2;
+                index[3] = base + vertexCount + 0;
+                index[4] = base + vertexCount + 2;
+                index[5] = base + vertexCount + 3;
+
+                vertex += 4;
+                index += 6;
+                vertexCount += 4;
+                indexCount += 6;
+            }
         }
 
         x += glyph->advance;
@@ -227,10 +238,10 @@ void Canvas::addCommand(std::uint32_t indexOffset)
     commands_.push_back(command);
 }
 
-void Canvas::reserve(std::uint32_t vertexCount, std::uint32_t indexCount)
+void Canvas::append(std::uint32_t vertexCount, std::uint32_t indexCount)
 {
     vertices_.resize(vertices_.size() + vertexCount);
     indices_.resize(indices_.size() + indexCount);
 }
 
-}
+} // namespace orbis

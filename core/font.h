@@ -1,20 +1,21 @@
 // Orbis v0.1.0
 // Lightweight immediate-mode UI framework
-// https://github.com/mikus/orbis
+// https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
 #pragma once
 
-#include "core/orbis_canvas.h"
+#include "core/types.h"
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
 #include <string_view>
 #include <vector>
 
 namespace orbis
 {
+
+struct RasterizedFont;
 
 struct Glyph
 {
@@ -29,6 +30,13 @@ struct Glyph
     float height = 0.0f;
 };
 
+struct FontAtlas
+{
+    const std::uint8_t* pixels = nullptr;
+    int width = 0;
+    int height = 0;
+};
+
 class Font
 {
 public:
@@ -41,16 +49,13 @@ public:
 
     float ascent() const { return ascent_; }
     float lineHeight() const { return lineHeight_; }
-
-    const std::uint8_t* pixels() const { return pixels_.data(); }
-    int width() const { return width_; }
-    int height() const { return height_; }
     Vec2 whiteUv() const { return whiteUv_; }
+    FontAtlas atlas() const { return {pixels_.data(), width_, height_}; }
 
     TextureId texture = 0;
 
 private:
-    bool bake(const void* data, float pixelHeight);
+    bool buildAtlas(const RasterizedFont& rasterized);
 
     std::vector<std::uint8_t> pixels_;
     std::array<Glyph, kGlyphCount> glyphs_{};

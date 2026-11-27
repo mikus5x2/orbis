@@ -3,7 +3,6 @@
 #include "core/orbis.h"
 #include "platform/win32/window.h"
 
-#include <array>
 #include <cstdio>
 
 int main()
@@ -45,6 +44,12 @@ int main()
         return 1;
     }
 
+#if defined(ORBIS_WITH_FREETYPE)
+    std::printf("font backend: freetype\n");
+#else
+    std::printf("font backend: stb_truetype\n");
+#endif
+
     orbis::d3d11::Renderer renderer;
     if (!renderer.init(device.device(), device.context()))
     {
@@ -63,6 +68,8 @@ int main()
         device.resize(width, height);
     };
 
+    const float clearColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+
     while (window.poll())
     {
         orbis::beginFrame(device.width(), device.height());
@@ -70,14 +77,14 @@ int main()
         const float w = canvas.width();
         const float h = canvas.height();
         canvas.fillRect({w / 2 - 16.0f, h / 2 - 16.0f, 32.0f, 32.0f}, {255, 0, 0});
-        canvas.text({12.0f, 24.0f}, "Testing text render", {0, 0, 0});
-        canvas.textOutlined({12.0f, 48.0f}, "Testing text outline render", {255, 255, 255}, {0, 0, 0}, 1.0f);
+        canvas.text({12.0f, 24.0f}, "This is an Orbis Example D3D11.", {0, 0, 0});
+        canvas.textOutlined({12.0f, 48.0f}, "This is an Orbis Example D3D11.", {255, 255, 255}, {0, 0, 0}, 1.0f);
 
         ID3D11RenderTargetView* renderTarget = device.renderTarget();
         device.context()->OMSetRenderTargets(1, &renderTarget, nullptr);
-        device.context()->ClearRenderTargetView(renderTarget, std::array{1.0f, 1.0f, 1.0f, 1.0f}.data());
+        device.context()->ClearRenderTargetView(renderTarget, clearColor);
 
-        renderer.draw(orbis::canvas());
+        renderer.draw(canvas);
         device.swapChain()->Present(1, 0);
     }
 

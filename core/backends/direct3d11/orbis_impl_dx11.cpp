@@ -1,6 +1,11 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus5x2/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #include "core/backends/direct3d11/orbis_impl_dx11.h"
 
-#include "core/orbis_font.h"
+#include "core/font.h"
 
 #include <algorithm>
 #include <cstring>
@@ -110,7 +115,8 @@ void Renderer::draw(const Canvas& canvas)
     const float width = canvas.width();
     const float height = canvas.height();
 
-    if (!context_ || width <= 0.0f || height <= 0.0f || canvas.commands().empty())
+    if (!context_ || textures_.empty() || width <= 0.0f || height <= 0.0f
+        || canvas.commands().empty())
     {
         return;
     }
@@ -199,6 +205,9 @@ void Renderer::draw(const Canvas& canvas)
         context_->RSSetScissorRects(1, &scissor);
         context_->DrawIndexed(command.indexCount, command.indexOffset, 0);
     }
+
+    ID3D11ShaderResourceView* none = nullptr;
+    context_->PSSetShaderResources(0, 1, &none);
 }
 
 bool Renderer::createShaders()
@@ -335,14 +344,16 @@ bool Renderer::createWhiteTexture()
 
 bool Renderer::createFontTexture(Font& font)
 {
-    if (!device_ || font.pixels() == nullptr || font.width() <= 0 || font.height() <= 0)
+    const FontAtlas atlas = font.atlas();
+
+    if (!device_ || atlas.pixels == nullptr || atlas.width <= 0 || atlas.height <= 0)
     {
         return false;
     }
 
     D3D11_TEXTURE2D_DESC textureDesc{};
-    textureDesc.Width = static_cast<UINT>(font.width());
-    textureDesc.Height = static_cast<UINT>(font.height());
+    textureDesc.Width = static_cast<UINT>(atlas.width);
+    textureDesc.Height = static_cast<UINT>(atlas.height);
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
     textureDesc.Format = DXGI_FORMAT_R8_UNORM;
@@ -351,8 +362,8 @@ bool Renderer::createFontTexture(Font& font)
     textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
     D3D11_SUBRESOURCE_DATA data{};
-    data.pSysMem = font.pixels();
-    data.SysMemPitch = static_cast<UINT>(font.width());
+    data.pSysMem = atlas.pixels;
+    data.SysMemPitch = static_cast<UINT>(atlas.width);
 
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
     if (FAILED(device_->CreateTexture2D(&textureDesc, &data, texture.GetAddressOf())))

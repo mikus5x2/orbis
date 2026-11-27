@@ -1,11 +1,12 @@
 // Orbis v0.1.0
 // Lightweight immediate-mode UI framework
-// https://github.com/mikus/orbis
+// https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
 #pragma once
 
-#include "core/orbis_font.h"
+#include "core/canvas.h"
+#include "core/font.h"
 
 namespace orbis
 {
@@ -31,7 +32,7 @@ private:
 };
 
 Context& createContext();
-void destroyContext(Context* target = nullptr);
+void destroyContext();
 Context& context();
 
 void beginFrame(int width, int height);

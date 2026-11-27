@@ -1,9 +1,11 @@
 // Orbis v0.1.0
 // Lightweight immediate-mode UI framework
-// https://github.com/mikus/orbis
+// https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
 #include "core/orbis.h"
+
+#include <cassert>
 
 namespace orbis
 {
@@ -27,23 +29,15 @@ Context& createContext()
     return *gContext;
 }
 
-void destroyContext(Context* target)
+void destroyContext()
 {
-    if (target == nullptr)
-    {
-        target = gContext;
-    }
-
-    if (target == gContext)
-    {
-        gContext = nullptr;
-    }
-
-    delete target;
+    delete gContext;
+    gContext = nullptr;
 }
 
 Context& context()
 {
+    assert(gContext != nullptr);
     return *gContext;
 }
 
@@ -57,4 +51,4 @@ Canvas& canvas()
     return context().canvas();
 }
 
-}
+} // namespace orbis
