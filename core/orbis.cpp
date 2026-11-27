@@ -11,7 +11,7 @@ Context* gContext = nullptr;
 
 void Context::beginFrame(int width, int height)
 {
-    drawList_.reset(static_cast<float>(width), static_cast<float>(height));
+    canvas_.reset(static_cast<float>(width), static_cast<float>(height));
 }
 
 Context& createContext()
@@ -47,9 +47,9 @@ void beginFrame(int width, int height)
     context().beginFrame(width, height);
 }
 
-DrawList& drawList()
+Canvas& canvas()
 {
-    return context().drawList();
+    return context().canvas();
 }
 
 }

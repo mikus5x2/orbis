@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/orbis_draw.h"
+#include "core/orbis_canvas.h"
 
 #include <cstddef>
 #include <string>
@@ -28,7 +28,7 @@ public:
     bool init(ID3D11Device* device, ID3D11DeviceContext* context);
     void shutdown();
 
-    void draw(const DrawList& drawList);
+    void draw(const Canvas& canvas);
 
     const std::string& lastError() const { return lastError_; }
 

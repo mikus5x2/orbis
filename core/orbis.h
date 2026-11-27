@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/orbis_draw.h"
+#include "core/orbis_canvas.h"
 
 namespace orbis
 {
@@ -14,11 +14,11 @@ public:
 
     void beginFrame(int width, int height);
 
-    DrawList& drawList() { return drawList_; }
-    const DrawList& drawList() const { return drawList_; }
+    Canvas& canvas() { return canvas_; }
+    const Canvas& canvas() const { return canvas_; }
 
 private:
-    DrawList drawList_;
+    Canvas canvas_;
 };
 
 Context& createContext();
@@ -27,6 +27,6 @@ Context& context();
 
 void beginFrame(int width, int height);
 
-DrawList& drawList();
+Canvas& canvas();
 
 } // namespace orbis

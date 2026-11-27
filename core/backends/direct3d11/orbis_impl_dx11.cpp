@@ -102,17 +102,17 @@ void Renderer::shutdown()
     indexCapacity_ = 0;
 }
 
-void Renderer::draw(const DrawList& drawList)
+void Renderer::draw(const Canvas& canvas)
 {
-    const float width = drawList.width();
-    const float height = drawList.height();
+    const float width = canvas.width();
+    const float height = canvas.height();
 
-    if (!context_ || width <= 0.0f || height <= 0.0f || drawList.commands().empty())
+    if (!context_ || width <= 0.0f || height <= 0.0f || canvas.commands().empty())
     {
         return;
     }
 
-    if (!ensureBuffers(drawList.vertices().size(), drawList.indices().size()))
+    if (!ensureBuffers(canvas.vertices().size(), canvas.indices().size()))
     {
         return;
     }
@@ -123,14 +123,14 @@ void Renderer::draw(const DrawList& drawList)
     {
         return;
     }
-    std::memcpy(mapped.pData, drawList.vertices().data(), drawList.vertices().size() * sizeof(Vertex));
+    std::memcpy(mapped.pData, canvas.vertices().data(), canvas.vertices().size() * sizeof(Vertex));
     context_->Unmap(vertexBuffer_.Get(), 0);
 
     if (FAILED(context_->Map(indexBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
     {
         return;
     }
-    std::memcpy(mapped.pData, drawList.indices().data(), drawList.indices().size() * sizeof(std::uint32_t));
+    std::memcpy(mapped.pData, canvas.indices().data(), canvas.indices().size() * sizeof(std::uint32_t));
     context_->Unmap(indexBuffer_.Get(), 0);
 
     struct Constants
@@ -175,7 +175,7 @@ void Renderer::draw(const DrawList& drawList)
     const LONG maxX = static_cast<LONG>(width);
     const LONG maxY = static_cast<LONG>(height);
 
-    for (const DrawCommand& command : drawList.commands())
+    for (const DrawCommand& command : canvas.commands())
     {
         D3D11_RECT scissor{
             std::clamp(static_cast<LONG>(command.clip.x), 0L, maxX),

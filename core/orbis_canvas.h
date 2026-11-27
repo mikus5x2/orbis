@@ -25,16 +25,18 @@ struct Rect
 struct Color
 {
     std::uint32_t value = 0xFF000000;
-};
 
-constexpr Color rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a = 255)
-{
-    return Color{
-        static_cast<std::uint32_t>(r)
-        | (static_cast<std::uint32_t>(g) << 8)
-        | (static_cast<std::uint32_t>(b) << 16)
-        | (static_cast<std::uint32_t>(a) << 24)};
-}
+    constexpr Color() = default;
+
+    constexpr Color(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a = 255)
+        : value(
+              static_cast<std::uint32_t>(r)
+              | (static_cast<std::uint32_t>(g) << 8)
+              | (static_cast<std::uint32_t>(b) << 16)
+              | (static_cast<std::uint32_t>(a) << 24))
+    {
+    }
+};
 
 struct Vertex
 {
@@ -51,16 +53,29 @@ struct DrawCommand
     std::uint32_t indexCount = 0;
 };
 
-class DrawList
+class Canvas
 {
 public:
     void reset(float width, float height);
 
-    void pushClipRect(const Rect& rect);
-    void popClipRect();
-    void setTexture(TextureId texture);
+    template <typename Fn>
+    void clip(const Rect& rect, Fn&& body)
+    {
+        pushClipRect(rect);
+        body();
+        popClipRect();
+    }
 
-    void addRectFilled(const Rect& rect, Color color);
+    template <typename Fn>
+    void texture(TextureId id, Fn&& body)
+    {
+        const TextureId previous = texture_;
+        texture_ = id;
+        body();
+        texture_ = previous;
+    }
+
+    void fillRect(const Rect& rect, Color color);
 
     float width() const { return width_; }
     float height() const { return height_; }
@@ -70,6 +85,8 @@ public:
     const std::vector<DrawCommand>& commands() const { return commands_; }
 
 private:
+    void pushClipRect(const Rect& rect);
+    void popClipRect();
     void addCommand();
     void reserve(std::uint32_t vertexCount, std::uint32_t indexCount);
 

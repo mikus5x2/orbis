@@ -1,4 +1,4 @@
-#include "core/orbis_draw.h"
+#include "core/orbis_canvas.h"
 
 #include <algorithm>
 
@@ -22,7 +22,7 @@ bool outsideClip(const Rect& rect, const Rect& clip)
 
 } 
 
-void DrawList::reset(float width, float height)
+void Canvas::reset(float width, float height)
 {
     vertices_.clear();
     indices_.clear();
@@ -35,7 +35,7 @@ void DrawList::reset(float width, float height)
     clipStack_.push_back({0.0f, 0.0f, width, height});
 }
 
-void DrawList::pushClipRect(const Rect& rect)
+void Canvas::pushClipRect(const Rect& rect)
 {
     Rect clip = rect;
 
@@ -53,7 +53,7 @@ void DrawList::pushClipRect(const Rect& rect)
     clipStack_.push_back(clip);
 }
 
-void DrawList::popClipRect()
+void Canvas::popClipRect()
 {
     if (clipStack_.size() > 1)
     {
@@ -61,12 +61,7 @@ void DrawList::popClipRect()
     }
 }
 
-void DrawList::setTexture(TextureId texture)
-{
-    texture_ = texture;
-}
-
-void DrawList::addRectFilled(const Rect& rect, Color color)
+void Canvas::fillRect(const Rect& rect, Color color)
 {
     if (rect.width <= 0.0f || rect.height <= 0.0f || outsideClip(rect, clipStack_.back()))
     {
@@ -101,7 +96,7 @@ void DrawList::addRectFilled(const Rect& rect, Color color)
     i[5] = base + 3;
 }
 
-void DrawList::addCommand()
+void Canvas::addCommand()
 {
     const Rect& clip = clipStack_.back();
 
@@ -121,7 +116,7 @@ void DrawList::addCommand()
     commands_.push_back(command);
 }
 
-void DrawList::reserve(std::uint32_t vertexCount, std::uint32_t indexCount)
+void Canvas::reserve(std::uint32_t vertexCount, std::uint32_t indexCount)
 {
     vertices_.resize(vertices_.size() + vertexCount);
     indices_.resize(indices_.size() + indexCount);

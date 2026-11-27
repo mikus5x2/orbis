@@ -53,16 +53,16 @@ int main()
     while (window.poll())
     {
         orbis::beginFrame(device.width(), device.height());
-        orbis::DrawList& drawList = orbis::drawList();
-        const float w = drawList.width();
-        const float h = drawList.height();
-        drawList.addRectFilled({w / 2 - 32.0f, h / 2 - 32.0f, 64.0f, 64.0f}, orbis::rgba(255, 255, 255));
+        orbis::Canvas& canvas = orbis::canvas();
+        const float w = canvas.width();
+        const float h = canvas.height();
+        canvas.fillRect({w / 2 - 16.0f, h / 2 - 16.0f, 32.0f, 32.0f}, {255, 0, 0});
 
         ID3D11RenderTargetView* renderTarget = device.renderTarget();
         device.context()->OMSetRenderTargets(1, &renderTarget, nullptr);
         device.context()->ClearRenderTargetView(renderTarget, std::array{0.08f, 0.09f, 0.11f, 1.0f}.data());
 
-        renderer.draw(orbis::drawList());
+        renderer.draw(orbis::canvas());
         device.swapChain()->Present(1, 0);
     }
 
