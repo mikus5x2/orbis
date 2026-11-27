@@ -3,7 +3,7 @@
 // https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
-#include "core/font_internal.h"
+#include "core/orbis_impl_font_internal.h"
 
 #if defined(ORBIS_WITH_FREETYPE)
 

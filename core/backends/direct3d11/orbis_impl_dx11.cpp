@@ -5,7 +5,7 @@
 
 #include "core/backends/direct3d11/orbis_impl_dx11.h"
 
-#include "core/font.h"
+#include "core/orbis_impl_font.h"
 
 #include <algorithm>
 #include <cstring>

@@ -3,14 +3,9 @@
 // https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
-// Orbis v0.1.0
-// Lightweight immediate-mode UI framework
-// https://github.com/mikus5x2/orbis
-// Licensed under the MIT License. See LICENSE for details.
-
 #pragma once
 
-#include "core/font.h"
+#include "core/orbis_impl_font.h"
 
 #include <array>
 #include <cstddef>

@@ -3,9 +3,9 @@
 // https://github.com/mikus5x2/orbis
 // Licensed under the MIT License. See LICENSE for details.
 
-#include "core/canvas.h"
+#include "core/orbis_impl_canvas.h"
 
-#include "core/font.h"
+#include "core/orbis_impl_font.h"
 
 #include <algorithm>
 #include <cmath>

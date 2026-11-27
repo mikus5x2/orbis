@@ -31,8 +31,8 @@
     <ClCompile Include="core\backends\direct3d11\orbis_impl_dx11.cpp" />
     <ClCompile Include="core\backends\freetype\orbis_font_freetype.cpp" />
     <ClCompile Include="core\backends\stb\orbis_font_stb.cpp" />
-    <ClCompile Include="core\canvas.cpp" />
-    <ClCompile Include="core\font.cpp" />
+    <ClCompile Include="core\orbis_impl_canvas.cpp" />
+    <ClCompile Include="core\orbis_impl_font.cpp" />
     <ClCompile Include="core\orbis.cpp" />
     <ClCompile Include="platform\win32\window.cpp" />
     <ClCompile Include="sandbox\main.cpp" />
@@ -40,9 +40,9 @@
   <ItemGroup>
     <ClInclude Include="core\backends\direct3d11\device.h" />
     <ClInclude Include="core\backends\direct3d11\orbis_impl_dx11.h" />
-    <ClInclude Include="core\canvas.h" />
-    <ClInclude Include="core\font.h" />
-    <ClInclude Include="core\font_internal.h" />
+    <ClInclude Include="core\orbis_impl_canvas.h" />
+    <ClInclude Include="core\orbis_impl_font.h" />
+    <ClInclude Include="core\orbis_impl_font_internal.h" />
     <ClInclude Include="core\orbis.h" />
     <ClInclude Include="core\types.h" />
     <ClInclude Include="platform\win32\window.h" />

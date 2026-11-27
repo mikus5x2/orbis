@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "core/canvas.h"
-#include "core/font.h"
+#include "core/orbis_impl_canvas.h"
+#include "core/orbis_impl_font.h"
 
 namespace orbis
 {

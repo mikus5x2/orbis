@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/canvas.h"
+#include "core/orbis_impl_canvas.h"
 
 #include <cstddef>
 #include <string>
