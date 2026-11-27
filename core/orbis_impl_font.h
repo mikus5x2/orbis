@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "core/types.h"
+#include "core/orbis_impl_types.h"
 
 #include <array>
 #include <cstdint>

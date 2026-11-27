@@ -44,7 +44,7 @@
     <ClInclude Include="core\orbis_impl_font.h" />
     <ClInclude Include="core\orbis_impl_font_internal.h" />
     <ClInclude Include="core\orbis.h" />
-    <ClInclude Include="core\types.h" />
+    <ClInclude Include="core\orbis_impl_types.h" />
     <ClInclude Include="platform\win32\window.h" />
   </ItemGroup>
   <ItemGroup>
