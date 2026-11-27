@@ -1,12 +1,20 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 #include <vector>
 
 namespace orbis
 {
 
 using TextureId = std::uint32_t;
+
+class Font;
 
 struct Vec2
 {
@@ -56,7 +64,7 @@ struct DrawCommand
 class Canvas
 {
 public:
-    void reset(float width, float height);
+    void reset(float width, float height, const Font& font);
 
     template <typename Fn>
     void clip(const Rect& rect, Fn&& body)
@@ -76,6 +84,13 @@ public:
     }
 
     void fillRect(const Rect& rect, Color color);
+    void text(Vec2 position, std::string_view text, Color color);
+    void textOutlined(
+        Vec2 position,
+        std::string_view text,
+        Color color,
+        Color outline,
+        float thickness = 1.0f);
 
     float width() const { return width_; }
     float height() const { return height_; }
@@ -87,7 +102,8 @@ public:
 private:
     void pushClipRect(const Rect& rect);
     void popClipRect();
-    void addCommand();
+    void emitText(Vec2 position, std::string_view text, Color color);
+    void addCommand(std::uint32_t indexOffset);
     void reserve(std::uint32_t vertexCount, std::uint32_t indexCount);
 
     std::vector<Vertex> vertices_;
@@ -96,6 +112,8 @@ private:
     std::vector<Rect> clipStack_;
 
     TextureId texture_ = 0;
+    const Font* font_ = nullptr;
+    Vec2 whiteUv_{0.5f, 0.5f};
     float width_ = 0.0f;
     float height_ = 0.0f;
 };

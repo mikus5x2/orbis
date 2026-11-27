@@ -1,9 +1,15 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #pragma once
 
 #include "core/orbis_canvas.h"
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -26,6 +32,7 @@ public:
     Renderer& operator=(const Renderer&) = delete;
 
     bool init(ID3D11Device* device, ID3D11DeviceContext* context);
+    bool createFontTexture(Font& font);
     void shutdown();
 
     void draw(const Canvas& canvas);
@@ -48,7 +55,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer_;
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer_;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer_;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> whiteTexture_;
+    std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textures_;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_;
     Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState_;

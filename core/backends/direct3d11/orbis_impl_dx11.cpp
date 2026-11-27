@@ -1,5 +1,7 @@
 #include "core/backends/direct3d11/orbis_impl_dx11.h"
 
+#include "core/orbis_font.h"
+
 #include <algorithm>
 #include <cstring>
 
@@ -50,7 +52,8 @@ SamplerState uiSampler : register(s0);
 
 float4 psMain(PSInput input) : SV_Target
 {
-    return input.color * uiTexture.Sample(uiSampler, input.uv);
+    const float coverage = uiTexture.Sample(uiSampler, input.uv).r;
+    return float4(input.color.rgb, input.color.a * coverage);
 }
 )";
 
@@ -88,7 +91,7 @@ void Renderer::shutdown()
     rasterizerState_.Reset();
     blendState_.Reset();
     sampler_.Reset();
-    whiteTexture_.Reset();
+    textures_.clear();
     indexBuffer_.Reset();
     vertexBuffer_.Reset();
     constantBuffer_.Reset();
@@ -158,7 +161,6 @@ void Renderer::draw(const Canvas& canvas)
     ID3D11Buffer* vertexBuffers[] = {vertexBuffer_.Get()};
     ID3D11Buffer* constantBuffers[] = {constantBuffer_.Get()};
     ID3D11SamplerState* samplers[] = {sampler_.Get()};
-    ID3D11ShaderResourceView* textures[] = {whiteTexture_.Get()};
 
     context_->IASetInputLayout(inputLayout_.Get());
     context_->IASetVertexBuffers(0, 1, vertexBuffers, &stride, &offset);
@@ -168,7 +170,6 @@ void Renderer::draw(const Canvas& canvas)
     context_->PSSetShader(pixelShader_.Get(), nullptr, 0);
     context_->VSSetConstantBuffers(0, 1, constantBuffers);
     context_->PSSetSamplers(0, 1, samplers);
-    context_->PSSetShaderResources(0, 1, textures);
     context_->OMSetBlendState(blendState_.Get(), nullptr, 0xFFFFFFFF);
     context_->RSSetState(rasterizerState_.Get());
 
@@ -188,6 +189,13 @@ void Renderer::draw(const Canvas& canvas)
             continue;
         }
 
+        ID3D11ShaderResourceView* view = textures_[0].Get();
+        if (command.texture < textures_.size())
+        {
+            view = textures_[command.texture].Get();
+        }
+
+        context_->PSSetShaderResources(0, 1, &view);
         context_->RSSetScissorRects(1, &scissor);
         context_->DrawIndexed(command.indexCount, command.indexOffset, 0);
     }
@@ -293,21 +301,21 @@ bool Renderer::createStates()
 
 bool Renderer::createWhiteTexture()
 {
-    const std::uint32_t pixel = 0xFFFFFFFF;
+    const std::uint8_t pixel = 255;
 
     D3D11_TEXTURE2D_DESC textureDesc{};
     textureDesc.Width = 1;
     textureDesc.Height = 1;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
-    textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    textureDesc.Format = DXGI_FORMAT_R8_UNORM;
     textureDesc.SampleDesc.Count = 1;
     textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
     textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
     D3D11_SUBRESOURCE_DATA data{};
     data.pSysMem = &pixel;
-    data.SysMemPitch = sizeof(pixel);
+    data.SysMemPitch = 1;
 
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
     if (FAILED(device_->CreateTexture2D(&textureDesc, &data, texture.GetAddressOf())))
@@ -315,8 +323,52 @@ bool Renderer::createWhiteTexture()
         return false;
     }
 
-    return SUCCEEDED(device_->CreateShaderResourceView(
-        texture.Get(), nullptr, whiteTexture_.GetAddressOf()));
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> view;
+    if (FAILED(device_->CreateShaderResourceView(texture.Get(), nullptr, view.GetAddressOf())))
+    {
+        return false;
+    }
+
+    textures_.push_back(view);
+    return true;
+}
+
+bool Renderer::createFontTexture(Font& font)
+{
+    if (!device_ || font.pixels() == nullptr || font.width() <= 0 || font.height() <= 0)
+    {
+        return false;
+    }
+
+    D3D11_TEXTURE2D_DESC textureDesc{};
+    textureDesc.Width = static_cast<UINT>(font.width());
+    textureDesc.Height = static_cast<UINT>(font.height());
+    textureDesc.MipLevels = 1;
+    textureDesc.ArraySize = 1;
+    textureDesc.Format = DXGI_FORMAT_R8_UNORM;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+    textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    D3D11_SUBRESOURCE_DATA data{};
+    data.pSysMem = font.pixels();
+    data.SysMemPitch = static_cast<UINT>(font.width());
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+    if (FAILED(device_->CreateTexture2D(&textureDesc, &data, texture.GetAddressOf())))
+    {
+        return false;
+    }
+
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> view;
+    if (FAILED(device_->CreateShaderResourceView(texture.Get(), nullptr, view.GetAddressOf())))
+    {
+        return false;
+    }
+
+    textures_.push_back(view);
+    font.texture = static_cast<TextureId>(textures_.size() - 1);
+    return true;
 }
 
 bool Renderer::ensureBuffers(std::size_t vertexCount, std::size_t indexCount)

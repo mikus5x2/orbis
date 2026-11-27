@@ -1,6 +1,11 @@
+// Orbis v0.1.0
+// Lightweight immediate-mode UI framework
+// https://github.com/mikus/orbis
+// Licensed under the MIT License. See LICENSE for details.
+
 #pragma once
 
-#include "core/orbis_canvas.h"
+#include "core/orbis_font.h"
 
 namespace orbis
 {
@@ -17,8 +22,12 @@ public:
     Canvas& canvas() { return canvas_; }
     const Canvas& canvas() const { return canvas_; }
 
+    Font& font() { return font_; }
+    const Font& font() const { return font_; }
+
 private:
     Canvas canvas_;
+    Font font_;
 };
 
 Context& createContext();

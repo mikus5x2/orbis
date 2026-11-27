@@ -36,6 +36,15 @@ int main()
         return 1;
     }
 
+    orbis::createContext();
+
+    orbis::Font& font = orbis::context().font();
+    if (!font.loadFromFile("C:/Windows/Fonts/Verdana.ttf", 12.0f))
+    {
+        std::fprintf(stderr, "Failed to load font\n");
+        return 1;
+    }
+
     orbis::d3d11::Renderer renderer;
     if (!renderer.init(device.device(), device.context()))
     {
@@ -43,7 +52,11 @@ int main()
         return 1;
     }
 
-    orbis::createContext();
+    if (!renderer.createFontTexture(font))
+    {
+        std::fprintf(stderr, "Failed to upload font texture\n");
+        return 1;
+    }
 
     window.onResize = [&device](int width, int height)
     {
@@ -57,10 +70,12 @@ int main()
         const float w = canvas.width();
         const float h = canvas.height();
         canvas.fillRect({w / 2 - 16.0f, h / 2 - 16.0f, 32.0f, 32.0f}, {255, 0, 0});
+        canvas.text({12.0f, 24.0f}, "Testing text render", {0, 0, 0});
+        canvas.textOutlined({12.0f, 48.0f}, "Testing text outline render", {255, 255, 255}, {0, 0, 0}, 1.0f);
 
         ID3D11RenderTargetView* renderTarget = device.renderTarget();
         device.context()->OMSetRenderTargets(1, &renderTarget, nullptr);
-        device.context()->ClearRenderTargetView(renderTarget, std::array{0.08f, 0.09f, 0.11f, 1.0f}.data());
+        device.context()->ClearRenderTargetView(renderTarget, std::array{1.0f, 1.0f, 1.0f, 1.0f}.data());
 
         renderer.draw(orbis::canvas());
         device.swapChain()->Present(1, 0);
